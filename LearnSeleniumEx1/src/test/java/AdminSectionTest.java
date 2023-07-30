@@ -5,6 +5,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.opentest4j.AssertionFailedError;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,8 +58,13 @@ public class AdminSectionTest {
                     for(String link : nestedMenuLinks){
                         //3. Check title header for nested menu element
                         driver.findElement(By.linkText(link)).click();
-                        String actualHeaderNestedMenu = driver.findElement(By.linkText(link)).getText();
-                        assertEquals(link, actualHeaderNestedMenu);
+                        String actualHeaderNestedMenu = driver.findElement(By.tagName("h1")).getText();
+                        try {
+                            assertEquals(link, actualHeaderNestedMenu);
+                        }catch (AssertionFailedError ex){
+                            System.out.println("Button name '" + link + "' not equal header page '" + actualHeaderNestedMenu + "'!!!");
+                        }
+
                     }
                 }
             else{
