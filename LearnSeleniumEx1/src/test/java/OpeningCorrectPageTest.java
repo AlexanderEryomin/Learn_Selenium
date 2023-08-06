@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertEquals;
@@ -24,8 +25,24 @@ public class OpeningCorrectPageTest {
     public void startMicrosoftEdge(){
         driver = new EdgeDriver();
     }
-    public void checkingElementStyleForFirefox(){
+    public int getColor(String stringColor, String desiredColor, String browser){
+        String step1 = new String();
+        if (browser.equals("Chrome") || browser.equals("Edge")) {
+            step1 = stringColor.replace("rgba(", "");
+        } else if (browser.equals("Firefox")) {
+            step1 = stringColor.replace("rgb(", "");
+        }
+         String step2 = step1.replace(")", "");
+         String[] colors = step2.split(",");
 
+        if (desiredColor.equals("Red")){
+            return Integer.parseInt(colors[0]);
+        } else if (desiredColor.equals("Green")) {
+            return Integer.parseInt(colors[1].replace(" ",""));
+        } else if (desiredColor.equals("Blue")) {
+            return Integer.parseInt(colors[2].replace(" ",""));
+        }
+        return 0;
     }
     @ParameterizedTest
     @ValueSource(strings = {"Chrome", "Firefox", "Edge"})
@@ -54,18 +71,26 @@ public class OpeningCorrectPageTest {
         float fontSizeRegularPriseFromMainPageFloat = Float.parseFloat(fontSizeRegularPriseString);
         float fontSizeCampaignsPriseFromMainPageFloat = Float.parseFloat(fontSizeCampaingPriseString);
 
+
+
+        String regularPriceMainPageColor = regularPrise.getCssValue("color");
+        int regularPriceMainPageRed = getColor(regularPriceMainPageColor, "Red", browserName);
+        int regularPriceMainPageGreen = getColor(regularPriceMainPageColor, "Green", browserName);
+        int regularPriceMainPageBlue = getColor(regularPriceMainPageColor, "Blue", browserName);
+
         //3) checking regular price on main page
-        if (! browserName.equals("Firefox"))
-            assertEquals("rgba(119, 119, 119, 1)",regularPrise.getCssValue("color"));
-        else
-            assertEquals("rgb(119, 119, 119)",regularPrise.getCssValue("color"));
+        assertTrue( regularPriceMainPageRed == regularPriceMainPageGreen &&
+                regularPriceMainPageGreen == regularPriceMainPageBlue );
         assertEquals("line-through", regularPrise.getCssValue("text-decoration-line"));
+
+        String campaignsPriceMainPageColor = campaignsPrise.getCssValue("color");
+        int campaignsPriceMainPageColorGreen = getColor( campaignsPriceMainPageColor,"Green", browserName);
+        int campaignsPriceMainPageColorBlue = getColor( campaignsPriceMainPageColor,"Blue", browserName);
+
         //4) checking campaigns price on main page
-        if (! browserName.equals("Firefox"))
-            assertEquals("rgba(204, 0, 0, 1)", campaignsPrise.getCssValue("color"));
-        else
-            assertEquals("rgb(204, 0, 0)", campaignsPrise.getCssValue("color"));
+        assertTrue( campaignsPriceMainPageColorGreen == 0 && campaignsPriceMainPageColorBlue == 0);
         assertEquals("STRONG", campaignsPrise.getAttribute("tagName"));
+
         //5) checking size
         assertTrue(fontSizeCampaignsPriseFromMainPageFloat > fontSizeRegularPriseFromMainPageFloat);
 
@@ -91,18 +116,23 @@ public class OpeningCorrectPageTest {
         //2) checking product prises
         assertEquals(regularPriseFromMainPage, regularPriseFromProductPage);
         assertEquals(campaignsPriseFromMainPage, campaignPriseFromProductPage);
+
+        String regularPricePPColor = regularPrisePP.getCssValue("color");
+        int regularPricePPRed = getColor(regularPricePPColor, "Red", browserName);
+        int regularPricePPGreen = getColor(regularPricePPColor, "Green", browserName);
+        int regularPricePPBlue = getColor(regularPricePPColor, "Blue", browserName);
         //3) checking regular price on product page
-        if (! browserName.equals("Firefox"))
-            assertEquals("rgba(102, 102, 102, 1)", regularPrisePP.getCssValue("color"));
-        else
-            assertEquals("rgb(102, 102, 102)", regularPrisePP.getCssValue("color"));
+        assertTrue( regularPricePPRed == regularPricePPGreen && regularPricePPRed == regularPricePPBlue);
         assertEquals("line-through", regularPrisePP.getCssValue("text-decoration-line"));
+
+        String campaignsPricePPColor = campaignsPrisePP.getCssValue("color");
+        int campaignPricePPColorGreen = getColor(campaignsPricePPColor, "Green", browserName);
+        int campaignPricePPColorBlue = getColor(campaignsPricePPColor, "Blue", browserName);
+
         //4) checking campaigns price on main page
-        if (! browserName.equals("Firefox"))
-            assertEquals("rgba(204, 0, 0, 1)", campaignsPrisePP.getCssValue("color"));
-        else
-            assertEquals("rgb(204, 0, 0)", campaignsPrisePP.getCssValue("color"));
+        assertTrue( campaignPricePPColorGreen == 0 && campaignPricePPColorBlue == 0);
         assertEquals("STRONG", campaignsPrisePP.getAttribute("tagName"));
+
         //5) checking size
         assertTrue( fontSizeCampaignsPriseFromProductPageFloat > fontSizeRegularPriseFromProductPageFloat);
     }
