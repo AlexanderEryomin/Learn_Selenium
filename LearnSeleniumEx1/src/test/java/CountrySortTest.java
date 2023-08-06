@@ -36,21 +36,20 @@ public class CountrySortTest {
         List<WebElement> elements = table.findElements(By.cssSelector("a:not([title=Edit])"));
         List<WebElement> numberOfZones = table.findElements(By.xpath("//td[6]"));
 
-        String[] countryList = new String[238];
+        String[] countryList = new String[elements.size()];
         int counter = 0;
-        String[] sortList = new String[238];
+        String[] sortList = new String[elements.size()];
 
         for(WebElement element : elements){
-           countryList[counter] = element.getAttribute("textContent");
-           sortList[counter] = element.getAttribute("textContent");
-           counter++;
+            countryList[counter] = sortList[counter] = element.getAttribute("textContent");
+            counter++;
         }
         Arrays.sort(sortList);
         //a)list of country in alphabetical order
         assertTrue(Arrays.equals(sortList, countryList));
 
 
-        String[] zones = new String[238];
+        String[] zones = new String[elements.size()];
         int c =0;
         for( WebElement el : numberOfZones ){
             zones[c] = el.getAttribute("textContent");
@@ -60,20 +59,20 @@ public class CountrySortTest {
             if( !zones[j].equals("0") ){
                driver.findElement(By.linkText(countryList[j])).click();
                WebElement tableZones = driver.findElement(By.id("table-zones"));
-               List<WebElement> zoneName = tableZones.findElements(By.xpath("//td[3]/input[@type='hidden']"));
+               List<WebElement> zoneName = tableZones.findElements(By.xpath("//td[3]/input[@type='hidden']/.."));
 
                int k = 0;
                String[] zoneListNotSort = new String[zoneName.size()];
                String[] zoneListSort = new String[zoneName.size()];
 
                for(WebElement zone: zoneName){
-                   zoneListNotSort[k] = zone.getAttribute("value");
-                   zoneListSort[k] = zone.getAttribute("value");
+                   zoneListNotSort[k] = zoneListSort[k] = zone.getAttribute("textContent");
                    k++;
                }
                Arrays.sort(zoneListSort);
                //b)list of zone in alphabetical order
                assertTrue(Arrays.equals(zoneListSort, zoneListNotSort));
+
                driver.findElement(By.linkText("Countries")).click();
             }
         }
