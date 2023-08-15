@@ -10,10 +10,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+
 
 import static junit.framework.TestCase.assertEquals;
-import static org.openqa.selenium.support.ui.ExpectedConditions.attributeContains;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElement;
 
 public class WorkWithCartTest {
@@ -47,19 +46,26 @@ public class WorkWithCartTest {
             driver.findElement(By.id("logotype-wrapper")).click();
         }
         driver.findElement(By.className("link")).click();
-        while ( numberProducts > 0 ){
-            if ( numberProducts > 1){
-                driver.findElement(By.xpath("//li[@class='shortcut']")).click();
+
+        boolean lastElement = false;
+
+        for( ;; ){
+            try {
+                driver.findElement(By.cssSelector("a[class=act]")).click();
+            }catch (NoSuchElementException ex) {
+                lastElement = true;
             }
+
             WebElement dataTable = driver.findElement(By.className("dataTable"));
             WebElement totalSum = dataTable.findElement(By.xpath("//tr[@class='footer']/td[2]"));
-            driver.findElement(By.name("remove_cart_item")).click();
+
+            driver.findElement(By.cssSelector("button[value=Remove]")).click();
             wait.until(ExpectedConditions.stalenessOf(totalSum));
-            numberProducts-=1;
+
+            if ( lastElement )break;
         }
 
-        String GameOver = "There are no items in your cart.";
-        assertEquals(GameOver,driver.findElement(By.tagName("em")).getText());
+        assertEquals("There are no items in your cart.", driver.findElement(By.tagName("em")).getText());
     }
     @AfterEach
     public void close(){
